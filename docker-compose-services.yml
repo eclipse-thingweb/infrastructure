@@ -28,14 +28,6 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      resources:
-        limits:
-          cpus: "0.08"
-          memory: 100M
-        reservations:
-          cpus: "0.05"
-          memory: 50M
     networks:
       - things_network
   test-things-auth:
@@ -68,14 +60,6 @@ services:
       - "traefik.http.routers.prometheus.service=prometheus"
       - "traefik.http.routers.prometheus.middlewares=test-things-auth"
       - "traefik.http.services.prometheus.loadbalancer.server.port=${PROMETHEUS_PORT}"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.08"
-          memory: 200M
-        reservations:
-          cpus: "0.05"
-          memory: 100M
     depends_on:
       - cadvisor
     networks:
@@ -95,14 +79,6 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.grafana.service=grafana"
       - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.08"
-          memory: 100M
-        reservations:
-          cpus: "0.05"
-          memory: 50M
     depends_on:
       - prometheus
     networks:
@@ -120,14 +96,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    deploy:
-      resources:
-        limits:
-          cpus: "0.8"
-          memory: 200M
-        reservations:
-          cpus: "0.05"
-          memory: 100M
     networks:
       - things_network
   loki:
