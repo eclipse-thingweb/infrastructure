@@ -35,3 +35,8 @@ To save your newly created dashboard locally and push it into the remote reposit
 
 If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
 For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
+
+## Instructions
+
+1. After deploying Grafana, configure GitHub OAuth2 through developer settings
+2. Add emails for admin rights via role attributes: `[email==<USER_EMAIL>] && 'Admin' || 'Viewer'`
