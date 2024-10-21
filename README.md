@@ -1,6 +1,9 @@
 # Infrastructure
-Main infrastructure configuration of the server to manage the deployment of vserver.
+
+Main infrastructure configuration of the server to manage the deployment of the Eclipse Server.
 This repository consists of docker compose files to run Portainer and other infrastructural services such as Traefik proxy, cAdvisor, Prometheus, Grafana and Grafana Loki.
+
+For the list of open ports, see [ports.md](./ports.md)
 
 ## Portainer
 
