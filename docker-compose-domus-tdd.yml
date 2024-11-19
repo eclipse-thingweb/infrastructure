@@ -1,0 +1,16 @@
+services:
+  api:
+    image: "thingweb/domus-tdd-api:latestwaid"
+    ports:
+      - "8081:5050"
+    environment:
+      TDD__SPARQLENDPOINT_URL: "http://sparqlendpoint:3030/things/"
+      TDD__TD_REPO_URL: "http://plugfest.thingweb.io:8081"
+    depends_on:
+      - sparqlendpoint
+  sparqlendpoint:
+    image: "thingweb/fuseki:latest"
+    environment:
+      ENABLE_UPLOAD: "true"
+      ADMIN_PASSWORD: "somepassword"
+      ASSEMBLER: "/fuseki-base/configuration/things.ttl"
