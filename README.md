@@ -15,7 +15,7 @@ Portainer is used to manage running Docker containers.
 
 Set the environment variable `CONFIG_FILEPATH` to the location of the `conf` folder in your computer. This folder is found in the root of this repository.
 
-To be able to access the services, the user must login through GitHub. For GitHub authentication to work, environment variables `OAUTH_SECRET` and, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` must be set with the configuration of GitHub OAuth application. Only whitelisted emails can access some of the services. Whitelisted emails can be set using the environment variable `WHITELISTED_EMAILS`. These services are accessible at:
+To be able to access the services, the user must login through GitHub. For GitHub authentication to work, environment variables `OAUTH_SECRET` (can be any string) and, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` must be set with the configuration of GitHub OAuth application. Only whitelisted emails can access some of the services. Whitelisted emails can be set using the environment variable `WHITELISTED_EMAILS`. These services are accessible at:
 
 - Traefik dashboard -> traefik.localhost
 - cAdvisor -> cadvisor.localhost
@@ -23,7 +23,8 @@ To be able to access the services, the user must login through GitHub. For GitHu
 
 Grafana and Portainer UIs are public access but they run their own authentication and authorization. These services are accessible at:
 
-- Grafana -> grafana.localhost
+- Grafana -> grafana.localhost and <http://grafana.plugfest.thingweb.io>
+- Portainer -> portainer.localhost and <http://plugfest.thingweb.io:8089/>
 
 Hostname and ports can be changed from `.env` file in the root directory.
 
@@ -42,3 +43,9 @@ For more information check Grafana's provisioning [documentation](https://grafan
 
 1. After deploying Grafana, configure GitHub OAuth2 through developer settings
 2. Add emails for admin rights via role attributes: `[email==<USER_EMAIL>] && 'Admin' || 'Viewer'`
+
+## Domus TDD
+
+The [domus TD Directory](https://github.com/eclipse-thingweb/domus-tdd-api) is started via its own stack.
+The port and domain are hard-coded and should be changed accordingly in the YAML file.
+The API is available through `http://plugfest.thingweb.io:8081`, e.g. `http://plugfest.thingweb.io:8081/things` will return all the TDs.
