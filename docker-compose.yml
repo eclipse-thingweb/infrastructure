@@ -6,11 +6,3 @@ services:
       - ./conf:/conf
     ports:
       - 8089:9000
-    deploy:
-      resources:
-        limits:
-          cpus: '0.08'
-          memory: 50M
-        reservations:
-          cpus: '0.05'
-          memory: 50M
