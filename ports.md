@@ -16,3 +16,8 @@ The current open ports are listed below. The services that run on these ports ar
 |   8088   |  5689    |
 |   8089   |  -       |
 |   5685   |  -       |
+
+**Jaeger Service Ports:**
+- 8084: Jaeger UI (maps to internal 16686)
+- 8085: Jaeger Collector (maps to internal 14268)  
+- 5689: Jaeger Agent UDP (maps to internal 5689)

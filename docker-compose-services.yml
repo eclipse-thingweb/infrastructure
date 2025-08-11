@@ -129,16 +129,16 @@ services:
     image: jaegertracing/all-in-one:latest
     environment:
       - COLLECTOR_OTLP_ENABLED=true
-      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_ZIPKIN_HOST_PORT=:${JAEGER_ZIPKIN_PORT}
     labels:
       - "traefik.http.routers.jaeger.rule=Host(`jaeger.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.jaeger.service=jaeger"
-      - "traefik.http.routers.jaeger.middlewares=test-things-auth"
-      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
+      # - "traefik.http.routers.jaeger.middlewares=test-things-auth"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=${JAEGER_PORT}"
     ports:
-      - "16686:16686"
-      - "14268:14268"
-      - "6831:6831/udp"
+      - "${JAEGER_PORT_OUT}:${JAEGER_PORT}"
+      - "${JAEGER_COLLECTOR_PORT}:14268"
+      - "${JAEGER_AGENT_PORT}:${JAEGER_AGENT_PORT}/udp"
     networks:
       - things_network
 volumes:
