@@ -16,3 +16,4 @@ The current open ports are listed below. The services that run on these ports ar
 |   8088   |  5689    |
 |   8089   |  -       |
 |   5685   |  -       |
+|   443    |  -       |
