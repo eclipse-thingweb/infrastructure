@@ -125,6 +125,22 @@ services:
         - ${CONFIG_FILEPATH}/mosquitto:/mosquitto/config
     networks:
         - things_network
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:${JAEGER_ZIPKIN_PORT}
+    labels:
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.${STACK_HOSTNAME}`)"
+      - "traefik.http.routers.jaeger.service=jaeger"
+      # - "traefik.http.routers.jaeger.middlewares=test-things-auth"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=${JAEGER_PORT}"
+    ports:
+      - "${JAEGER_PORT_OUT}:${JAEGER_PORT}"
+      - "${JAEGER_COLLECTOR_PORT}:14268"
+      - "${JAEGER_AGENT_PORT}:${JAEGER_AGENT_PORT}/udp"
+    networks:
+      - things_network
 volumes:
   prometheus_data:
   grafana_data:
