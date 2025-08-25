@@ -133,7 +133,7 @@ services:
     labels:
       - "traefik.http.routers.jaeger.rule=Host(`jaeger.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.jaeger.service=jaeger"
-      # - "traefik.http.routers.jaeger.middlewares=test-things-auth"
+      - "traefik.http.routers.jaeger.middlewares=test-things-auth"
       - "traefik.http.services.jaeger.loadbalancer.server.port=${JAEGER_PORT}"
     ports:
       - "${JAEGER_PORT_OUT}:${JAEGER_PORT}"
