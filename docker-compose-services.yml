@@ -31,14 +31,17 @@ services:
       - "--entrypoints.smart-home-smart-clock.address=:${SMART_HOME_SMART_CLOCK_PORT_IN}/udp"
     ports:
       - "${WEB_PORT_OUT}:${WEB_PORT_IN}"
+      - "443:443"
       - "${MODBUS_ELEVATOR_PORT_OUT}:${MODBUS_ELEVATOR_PORT_IN}"
       - "${COAP_SIMPLE_PORT_OUT}:${COAP_SIMPLE_PORT_IN}/udp"
       - "${COAP_NEGOTIATION_PORT_OUT}:${COAP_NEGOTIATION_PORT_IN}/udp"
       - "${SMART_HOME_SMART_CLOCK_PORT_OUT}:${SMART_HOME_SMART_CLOCK_PORT_IN}/udp"
       - "${TRAEFIK_DASHBOARD_PORT_OUT}:${TRAEFIK_DASHBOARD_PORT_IN}"
     volumes:
-      # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/config:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+      - ./traefik/letsencrypt:/letsencrypt
     networks:
       - things_network
   test-things-auth:
@@ -52,13 +55,24 @@ services:
       - PROVIDERS_GENERIC_OAUTH_CLIENT_ID=${GITHUB_CLIENT_ID}
       - PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - PROVIDERS_GENERIC_OAUTH_SCOPE=user,repo
-      - INSECURE_COOKIE=true
+      - INSECURE_COOKIE=false
       - LOG_LEVEL=debug
       - WHITELIST=${WHITELISTED_EMAILS}
     labels:
       - "traefik.http.middlewares.test-things-auth.forwardauth.address=http://test-things-auth:${FORWARD_AUTH_PORT}"
       - "traefik.http.middlewares.test-things-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
       - "traefik.http.services.test-things-auth.loadbalancer.server.port=${FORWARD_AUTH_PORT}"
+    networks:
+      - things_network
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`${STACK_HOSTNAME}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
+      - "traefik.http.services.whoami.loadbalancer.server.port=${WEB_PORT_IN}"
     networks:
       - things_network
   prometheus:
@@ -81,7 +95,7 @@ services:
     environment:
       - PROMETHEUS_PORT=${PROMETHEUS_PORT}
       - GF_SERVER_DOMAIN=grafana.${STACK_HOSTNAME}
-      - GF_SERVER_ROOT_URL=http://grafana.${STACK_HOSTNAME}
+      - GF_SERVER_ROOT_URL=https://grafana.${STACK_HOSTNAME}
       - LOKI_PORT=${LOKI_PORT}
     volumes:
       - ${CONFIG_FILEPATH}/grafana/provisioning:/etc/grafana/provisioning
@@ -148,12 +162,12 @@ services:
     image: jaegertracing/all-in-one:latest
     environment:
       - COLLECTOR_OTLP_ENABLED=true
-      - COLLECTOR_ZIPKIN_HOST_PORT=:${JAEGER_ZIPKIN_PORT}
+      - COLLECTOR_ZIPKIN_HOST_PORT=:8085
     labels:
-      - "traefik.http.routers.jaeger.rule=Host(`jaeger.${STACK_HOSTNAME}`)"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.plugfest.thingweb.io`)"
       - "traefik.http.routers.jaeger.service=jaeger"
       - "traefik.http.routers.jaeger.middlewares=test-things-auth"
-      - "traefik.http.services.jaeger.loadbalancer.server.port=${JAEGER_PORT}"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
     ports:
       - "8084:16686"
       - "8085:14268"
@@ -180,6 +194,16 @@ services:
   tmc-release:
     image: ghcr.io/wot-oss/tmc:v0.1.5
     command: ["serve", "--port", "8082"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tmc-release.rule=Host(`${STACK_HOSTNAME}`) && PathPrefix(`/tmc-release`)"
+      - "traefik.http.routers.tmc-release.entrypoints=websecure"
+      - "traefik.http.routers.tmc-release.tls=true"
+      - "traefik.http.routers.tmc-release.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tmc-release.service=tmc-release"
+      - "traefik.http.middlewares.tmc-release-strip.stripprefix.prefixes=/tmc-release"
+      - "traefik.http.routers.tmc-release.middlewares=tmc-release-strip"
+      - "traefik.http.services.tmc-release.loadbalancer.server.port=8082"
     ports:
       - "8082:8082"
     volumes:
@@ -191,6 +215,16 @@ services:
   tmc-latest:
     image: ghcr.io/wot-oss/tmc:latest
     command: ["serve", "--port", "8083"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tmc-latest.rule=Host(`${STACK_HOSTNAME}`) && PathPrefix(`/tmc-latest`)"
+      - "traefik.http.routers.tmc-latest.entrypoints=websecure"
+      - "traefik.http.routers.tmc-latest.tls=true"
+      - "traefik.http.routers.tmc-latest.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tmc-latest.service=tmc-latest"
+      - "traefik.http.middlewares.tmc-latest-strip.stripprefix.prefixes=/tmc-latest"
+      - "traefik.http.routers.tmc-latest.middlewares=tmc-latest-strip"
+      - "traefik.http.services.tmc-latest.loadbalancer.server.port=8083"
     ports:
       - "8083:8083"
     volumes:
